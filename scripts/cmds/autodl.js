@@ -1,87 +1,96 @@
-const axios = require('axios');
+const axios = require("axios");
 
 module.exports = {
-  config: {
-    name: "alldl",
-    version: "12.0",
-    author: "xalman",
-    countDown: 3,
-    role: 0,
-    shortDescription: "Ultra Fast Multi-Source Downloader",
-    longDescription: "Download videos using Xalman API with flexible data parsing.",
-    category: "media",
-    guide: "{pn} <link> or just send the link"
-  },
+	config: {
+		name: "alldl",
+		version: "1.2",
+		author: "S AY EM",
+		countDown: 5,
+		role: 0,
+		shortDescription: "Auto download video",
+		longDescription: "Download all video automatically",
+		category: "media"
+	},
 
-  onStart: async function ({ api, event, args, message }) {
-    const url = args[0];
-    if (!url) return message.reply("⚠️ Please provide a video link!");
-    return await this.handleDownload(url, api, event, message);
-  },
+	onStart: async function ({ message, args }) {
+		if (!args[0]) return message.reply("Please provide a URL");
 
-  onChat: async function ({ api, event, message }) {
-    const { body, senderID } = event;
-    if (!body || senderID === api.getCurrentUserID()) return;
+		message.reaction("😘");
 
-    const linkRegEx = /(https?:\/\/[^\s]+)/g;
-    const match = body.match(linkRegEx);
+		handleDownload(args[0], message);
+	},
 
-    if (match) {
-      const url = match[0];
-      const sites = ["tiktok.com", "facebook.com", "fb.watch", "instagram.com", "reels", "youtube.com", "youtu.be", "pinterest.com", "pin.it", "twitter.com", "x.com", "capcut.com"];
-      
-      if (sites.some(s => url.includes(s))) {
-        return await this.handleDownload(url, api, event, message);
-      }
-    }
-  },
+	onChat: async function ({ event, api }) {
+		try {
+			if (!event.body) return;
 
-  handleDownload: async function (url, api, event, message) {
-    const { messageID } = event;
-    const start = Date.now();
+			const text = event.body.trim();
 
-    try {
-      if (api.setMessageReaction) api.setMessageReaction("⌛", messageID, () => {}, true);
+			if (!text.includes("http")) return;
 
-      const res = await axios.get(`https://xalman-apis.vercel.app/api/alldl?url=${encodeURIComponent(url)}`);
-      const resData = res.data;
+			api.setMessageReaction("😘", event.messageID, () => {}, true);
 
-      // Smart Parsing: Looks for URL and Title in multiple possible locations
-      const resultObj = resData.result || {};
-      const nestedData = resultObj.data || {};
+			handleDownload(text, {
+				reply: (msg) => api.sendMessage(msg, event.threadID, event.messageID)
+			});
 
-      // Priority list for video URL and Title
-      const videoUrl = resultObj.url || resultObj.video_url || nestedData.url || nestedData.video_url || nestedData.hd;
-      const title = resultObj.title || nestedData.title || resultObj.description || "No Title";
-      const platform = resData.detected_platform || "Social Media";
-
-      if (!videoUrl) throw new Error("Could not find a valid video URL.");
-      
-      const stream = await axios.get(videoUrl, { 
-        responseType: 'stream',
-        headers: { 'User-Agent': 'Mozilla/5.0' }
-      });
-
-      const time = ((Date.now() - start) / 1000).toFixed(2);
-      const xalmanBody = 
-        `『 𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗𝗘𝗥 』\n` +
-        `━━━━━━━━━━━━━━━━━━\n` +
-        `📝 𝗧𝗶𝘁𝗹𝗲: ${title.slice(0, 60)}${title.length > 60 ? "..." : ""}\n` +
-        `🌐 𝗣𝗹𝗮𝘁𝗳𝗼𝗿𝗺: ${platform.toUpperCase()}\n` +
-        `⏱️ 𝗧𝗶𝗺𝗲: ${time}s\n` +
-        `👨‍💻 Dev: xalman\n` +
-        `━━━━━━━━━━━━━━━━━━`;
-
-      await message.reply({
-        body: xalmanBody,
-        attachment: stream.data
-      });
-
-      if (api.setMessageReaction) api.setMessageReaction("✅", messageID, () => {}, true);
-
-    } catch (e) {
-      console.error("Download Error:", e.message);
-      if (api.setMessageReaction) api.setMessageReaction("❌", messageID, () => {}, true);
-    }
-  }
+		} catch (e) {
+			console.log(e);
+		}
+	}
 };
+
+async function handleDownload(url, message) {
+	try {
+
+		const api = `https://sayem-apixs.vercel.app/api/downloader/threads?url=${encodeURIComponent(url)}`;
+		const res = await axios.get(api);
+
+		if (!res.data || !res.data.success) {
+			return message.reply("Failed to fetch media");
+		}
+
+		const mediaUrl = res.data.download_url;
+
+		const isPhoto =
+			mediaUrl.includes(".jpg") ||
+			mediaUrl.includes(".jpeg") ||
+			mediaUrl.includes(".png") ||
+			mediaUrl.includes("image");
+
+		let platformText = isPhoto ? "Your photo." : "Your video.";
+
+		if (url.includes("facebook.com") || url.includes("fb.watch")) {
+			platformText = isPhoto
+				? "😘 | 𝐘𝐨𝐮𝐫 𝐅𝐚𝐜𝐞𝐛𝐨𝐨𝐤 𝐏𝐡𝐨𝐭𝐨"
+				: "😘 | 𝐘𝐨𝐮𝐫 𝐅𝐚𝐜𝐞𝐛𝐨𝐨𝐤 𝐕𝐢𝐝𝐞𝐨";
+		}
+		else if (url.includes("tiktok.com")) {
+			platformText = isPhoto
+				? "😘 | 𝐘𝐨𝐮𝐫 𝐓𝐢𝐤𝐭𝐨𝐤 𝐏𝐡𝐨𝐭𝐨"
+				: "😘 | 𝐘𝐨𝐮𝐫 𝐓𝐢𝐤𝐭𝐨𝐤 𝐕𝐢𝐝𝐞𝐨";
+		}
+		else if (url.includes("instagram.com")) {
+			platformText = isPhoto
+				? "😘 | 𝐘𝐨𝐮𝐫 𝐈𝐧𝐬𝐭𝐫𝐚𝐠𝐫𝐚𝐦 𝐏𝐡𝐨𝐭𝐨"
+				: "😘 | 𝐘𝐨𝐮𝐫 𝐈𝐧𝐬𝐭𝐫𝐚𝐠𝐫𝐚𝐦 𝐕𝐢𝐝𝐞𝐨";
+		}
+		else if (url.includes("pinterest.com")) {
+			platformText = isPhoto
+				? "😘 | 𝐘𝐨𝐮𝐫 𝐏𝐢𝐧𝐭𝐞𝐫𝐞𝐬𝐭 𝐏𝐡𝐨𝐭𝐨"
+				: "😘 | 𝐘𝐨𝐮𝐫 𝐏𝐢𝐧𝐭𝐞𝐫𝐞𝐬𝐭 𝐕𝐢𝐝𝐞𝐨";
+		}
+		else if (url.includes("youtube.com") || url.includes("youtu.be")) {
+			platformText = "😘 | 𝐘𝐨𝐮𝐫 𝐘𝐨𝐮𝐓𝐮𝐛𝐞 𝐕𝐢𝐝𝐞𝐨";
+		}
+
+		await message.reply({
+			body: platformText,
+			attachment: await global.utils.getStreamFromURL(mediaUrl)
+		});
+
+	} catch (e) {
+		console.log(e);
+		message.reply("Error while downloading");
+	}
+}
