@@ -1,5 +1,5 @@
 // set bash title
-process.stdout.write("\x1b]2;Goat Bot V2 - Made by NTKhang Fixed by XaLmAnX210 \x1b\x5c");
+process.stdout.write("\x1b]2;Xs Goat V2 - Made by NTKhang Fixed by S AY EMX210 \x1b\x5c");
 const defaultRequire = require;
 
 function decode(text) {
@@ -16,7 +16,7 @@ const readline = defaultRequire("readline");
 const fs = defaultRequire("fs-extra");
 const toptp = defaultRequire("totp-generator");
 //const { login } = defaultRequire("");
-const login = defaultRequire(`${process.cwd()}/fb-chat-api`);
+const login = defaultRequire(`${process.cwd()}/xs-chat-apixs`);
 const qr = new (defaultRequire("qrcode-reader"));
 const Canvas = defaultRequire("canvas");
 const https = defaultRequire("https");
