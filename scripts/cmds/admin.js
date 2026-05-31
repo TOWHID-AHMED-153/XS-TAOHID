@@ -59,7 +59,7 @@ module.exports = {
                                         const notAdminIds = [];
                                         const adminIds = [];
                                         for (const uid of uids) {
-                                                if (config.adminBot.includes(61576510094813))
+                                                if (config.adminBot.includes(uid))
                                                         adminIds.push(uid);
                                                 else
                                                         notAdminIds.push(uid);
