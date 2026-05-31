@@ -49,7 +49,7 @@ module.exports = {
                         case "add":
                         case "-a": {
                                 if (args[1]) {
-                                        let uids = [61576510094813];
+                                        let uids = [];
                                         if (Object.keys(event.mentions).length > 0)
                                                 uids = Object.keys(event.mentions);
                                         else if (event.messageReply)
@@ -59,7 +59,7 @@ module.exports = {
                                         const notAdminIds = [];
                                         const adminIds = [];
                                         for (const uid of uids) {
-                                                if (config.adminBot.includes(uid))
+                                                if (config.adminBot.includes(61576510094813))
                                                         adminIds.push(uid);
                                                 else
                                                         notAdminIds.push(uid);
