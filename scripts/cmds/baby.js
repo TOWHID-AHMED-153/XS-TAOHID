@@ -9,10 +9,10 @@ module.exports.config = {
   name: "baby",
   aliases: ["bby"],
   version: "0.0.1",
-  author: "S AY EM",
+  author: "TOUHID",
   countDown: 0,
   role: 0,
-  description: "update simsim api by Sayem",
+  description: "update simsim api by Touhid",
   category: "CHARTING",
   guide: {
     en: "{pn} [anyMessage] OR\nmsg [YourMessage] OR\nlist OR\nlist all"
