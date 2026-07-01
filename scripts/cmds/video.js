@@ -75,7 +75,7 @@ module.exports = {
             fs.writeFileSync(filePath, Buffer.from(fileBuffer));
 
             await api.sendMessage({
-                body: `🎵 𝙃𝙚𝙧𝙚'𝙨 𝙮𝙤𝙪𝙧 𝙢𝙪𝙨𝙞𝙘 𝙗𝙖𝙗𝙮 🎶\n\n• 𝐓𝐢𝐭𝐥𝐞: ${title}\n• 𝐀𝐮𝐭𝐡𝐨𝐫: Rocky`,
+                body: `🎵 𝙃𝙚𝙧𝙚'𝙨 𝙮𝙤𝙪𝙧 𝙢𝙪𝙨𝙞𝙘 𝙗𝙖𝙗𝙮 🎶\n\n• 𝐓𝐢𝐭𝐥𝐞: ${title}\n• 𝐀𝐮𝐭𝐡𝐨𝐫: TOUHID`,
                 attachment: fs.createReadStream(filePath)
             }, threadID, (err) => {
                 if (!err) {
