@@ -41,8 +41,8 @@ module.exports = {
     const dateNow = moment.tz("Asia/Dhaka").format("DD/MM/YYYY");
 
     const gifLinks = [
-      "https://files.catbox.moe/20q0dn.gif",
-      "https://files.catbox.moe/20q0dn.gif"
+      "https://files.catbox.moe/fxs822.mp4",
+      "https://files.catbox.moe/fxs822.mp4"
     ];
     const randomGif = gifLinks[Math.floor(Math.random() * gifLinks.length)];
 
@@ -73,7 +73,7 @@ module.exports = {
   » ⏰ 𝗧𝗶𝗺𝗲: ${timeNow}
 
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-   👤 𝗢𝘄𝗻𝗲𝗿: TOUHID 
+   👤 𝗢𝘄𝗻𝗲𝗿: TOUHID AHAMED 
    🛡️ 𝗦𝘁𝗮𝘁𝘂𝘀: 𝗦𝗲𝗰𝘂𝗿𝗲𝗱 & 𝗢𝗻𝗹𝗶𝗻𝗲
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`.trim();
 
