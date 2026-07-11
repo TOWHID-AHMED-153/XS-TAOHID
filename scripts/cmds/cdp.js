@@ -9,7 +9,7 @@ module.exports = {
   config: {
     name: "cdp",
     version: "2.0",
-    author: "TOUHID",
+    author: "Rocky",
     countDown: 5,
     role: 0,
     category: "love",
