@@ -1,199 +1,50 @@
-const axios = require('axios');
+module.exports = {
+  config: {
+    name: "baby",
+    aliases: ["jan", "sona", "bby", "bro", "bod"],
+    version: "10.1",
+    author: "Touhid",
+    role: 0,
+    category: "ai",
+    shortDescription: "Auto Reply Baby - No Prefix",
+    guide: "Hi, Hello, Baby, Bro, Jan bollei chat ON",
+    cooldowns: 1
+  },
 
-const baseApiUrl = async () => {
-  const res = await axios.get("https://raw.githubusercontent.com/sayem-dev-xs/sayem-apixs-for-baby/main/baseApiUrl.json");
-  return res.data.baby;
-};
+  // Eita sudhu.cmd install er jonno. Kaj kore na.
+  onStart: async function({ message }) {
+    return message.reply("👶 Baby bot install hoye gese. Ekhon 'hi' likho.");
+  },
 
-module.exports.config = {
-  name: "baby",
-  aliases: ["bby"],
-  version: "0.0.1",
-  author: "TOUHID",
-  countDown: 0,
-  role: 0,
-  description: "update simsim api by Touhid",
-  category: "CHARTING",
-  guide: {
-    en: "{pn} [anyMessage] OR\nmsg [YourMessage] OR\nlist OR\nlist all"
-  }
-};
-
-module.exports.onStart = async ({
-  api,
-  event,
-  args,
-  usersData
-}) => {
-
-  const link = `${await baseApiUrl()}`;
-  const sayem = args.join(" ").toLowerCase();
-
-  try {
-
-    if (!args[0]) {
-
-      const ran = ["Bolo baby", "hum bby", "Yes' i am here", "type .help baby"];
-
-      return api.sendMessage(
-        ran[Math.floor(Math.random() * ran.length)],
-        event.threadID,
-        event.messageID
-      );
-    }
-
-    if (args[0] === 'list') {
-
-      if (args[1] === 'all') {
-
-        const data = (await axios.get(`${link}/list-all`)).data;
-
-        const limit = parseInt(args[2]) || 100;
-
-        const teachers = data.teachers?.slice(0, limit) || [];
-
-        const result = await Promise.all(
-          teachers.map(async (item) => {
-
-            const uid = item.uid;
-            const value = item.teaches;
-
-            const name = await usersData.getName(uid).catch(() => uid);
-
-            return {
-              name,
-              value
-            };
-
-          })
-        );
-
-        result.sort((a, b) => b.value - a.value);
-
-        const output = result
-          .map((t, i) => `${i + 1}/ ${t.name}: ${t.value}`)
-          .join("\n");
-
-        return api.sendMessage(
-          `Total Teach = ${data.total_questions || 0}\n👑 | List of Teachers of baby\n${output}`,
-          event.threadID,
-          event.messageID
-        );
-
-      } else {
-
-        const d = (await axios.get(`${link}/list-xs`)).data;
-
-        return api.sendMessage(
-          `❇ | Total Teach = ${d.total_questions || "api off"}\n♻ | Total Response = ${d.total_answers || "api off"}`,
-          event.threadID,
-          event.messageID
-        );
-
-      }
-
-    }
-
-    if (args[0] === 'msg') {
-
-      const fuk = sayem.replace("msg ", "");
-
-      const d = (await axios.get(`${link}/baby-xs`, {
-        params: { ask: fuk }
-      })).data;
-
-      return api.sendMessage(`Message ${fuk} = ${d.respond}`, event.threadID, event.messageID);
-    }
-
-    const d = (await axios.get(`${link}/baby-xs`, {
-      params: { ask: sayem }
-    })).data;
-
-    return api.sendMessage(d.respond, event.threadID, event.messageID);
-
-  } catch (e) {
-
-    console.log(e);
-
-    api.sendMessage("Check console for error", event.threadID, event.messageID);
-
-  }
-};
-
-module.exports.onChat = async ({
-  api,
-  event
-}) => {
-
-  try {
-
-    const botID = api.getCurrentUserID();
-
-    if (event.senderID == botID) return;
-
-    const body = event.body ? event.body.toLowerCase() : "";
+  // Asol kaj eita korbe
+  handleEvent: async function({ api, event, message }) {
+    const { senderID, body, messageReply } = event;
     if (!body) return;
+    const msg = body.toLowerCase().trim();
+    global.babyChat = global.babyChat || {};
 
-    const link = `${await baseApiUrl()}`;
-
-    if (
-      event.messageReply &&
-      event.messageReply.senderID == botID
-    ) {
-
-      const a = (await axios.get(`${link}/baby-xs`, {
-        params: { ask: body }
-      })).data;
-
-      return api.sendMessage(
-        a.respond,
-        event.threadID,
-        event.messageID
-      );
+    const triggerWords = ["baby", "jan", "sona", "bby", "bro", "bod", "hi", "hello", "hey"];
+    if (triggerWords.includes(msg)) {
+      global.babyChat[senderID] = true;
+      const replies = ["Hii Sona 🥰", "Assalamualaikum 👶", "Heyy.. dakla je? Bolo"];
+      return message.reply("👶 " + replies[Math.floor(Math.random() * replies.length)]);
     }
 
-    if (
-      body.startsWith("baby") ||
-      body.startsWith("bby") ||
-      body.startsWith("bot") ||
-      body.startsWith("jan") ||
-      body.startsWith("babu") ||
-      body.startsWith("janu")
-    ) {
-
-      const arr = body.replace(/^\S+\s*/, "");
-
-      const randomReplies = [
-        "জানু😛, ডেকেছো আমাকে?",
-        "Yes 😀, I am here",
-        "What's up?😍",
-        "ডাকলেই কিন্তু চলে আছি-!😒"
-      ];
-
-      if (!arr) {
-
-        return api.sendMessage(
-          randomReplies[Math.floor(Math.random() * randomReplies.length)],
-          event.threadID,
-          event.messageID
-        );
+    if (global.babyChat[senderID] == true) {
+      if (msg == "stop" || msg == "off" || msg == "thak") {
+        delete global.babyChat[senderID];
+        return message.reply("👶 Accha ghumalam 🥱 Abar dakio.");
       }
-
-      const a = (await axios.get(`${link}/baby-xs`, {
-        params: { ask: arr }
-      })).data;
-
-      return api.sendMessage(
-        a.respond,
-        event.threadID,
-        event.messageID
-      );
+      if (msg.includes("kemon acho")) return message.reply("👶 Ami valo achi 🥰 Tumi kemon acho?");
+      if (msg.includes("love you")) return message.reply("👶 Uhuu lojja pai 🥺 Amio love you sona");
+      if (msg.includes("kanna")) return message.reply("👶 Aww sona kanna koro na 😭");
+      if (msg.includes("rag")) return message.reply("👶 Sorry sona 😔 Maf koro na");
+      if (msg.includes("ghum")) return message.reply("👶 Amar o ghum pacche 🥱");
+      if (msg.includes("khuda")) return message.reply("👶 Amar khida lagse 🍼");
+      if (msg.includes("tumi ke")) return message.reply("👶 Ami tomar cute Baby 👶");
+      if (msg.includes("bye")) return message.reply("👶 Aww jaba? 🥺 Thako na");
+      const random = ["Hehe ki bolo? 😆","Ami bujhi na 🥺","Ar bolo na lojja lage 🥰","Tumi valo 👶","Eww pochha 😒"];
+      return message.reply("👶 " + random[Math.floor(Math.random() * random.length)]);
     }
-
-  } catch (err) {
-
-    return api.sendMessage(`Error: ${err.message}`, event.threadID, event.messageID);
-
   }
-
 };
