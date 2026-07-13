@@ -4,8 +4,26 @@ const path = require("path");
 
 const __AUTHOR__ = "Rocky Chowdhury";
 
+// Converts normal text to Unicode "bold" style (Messenger has no real bold formatting)
+function toBold(str) {
+  const normal = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const bold = Array.from(
+    "𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵"
+  ); // Array.from correctly splits by codepoint, not UTF-16 code unit
+  return str
+    .split("")
+    .map((ch) => {
+      const idx = normal.indexOf(ch);
+      return idx === -1 ? ch : bold[idx];
+    })
+    .join("");
+}
+
+const WAIT_TEXT = toBold("Please wait, your video is downloading...");
+const CAPTION_TEXT = `🎬 ${toBold("Here is your video, enjoy!")}`;
+
 const rocky = async () => {
-  const base = await axios.get("https://raw.githubusercontent.com/Rocky-mastermind/rv-api/main/baseApiUrl.json");
+  const base = await axios.get("https://raw.githubusercontent.com/Alvee-Evan-telegrame-bot/rv-api/main/baseApiUrl.json");
   return base.data.rocky;
 };
 
@@ -76,6 +94,20 @@ module.exports = {
 
       if (!url) return api.sendMessage("⚠️ কোনো video পাওয়া যায়নি!", event.threadID, event.messageID);
 
+      // Text sent BEFORE the video starts downloading
+      let waitMsgID = null;
+      await new Promise((resolve) => {
+        api.sendMessage(
+          WAIT_TEXT,
+          event.threadID,
+          (err, info) => {
+            if (!err && info) waitMsgID = info.messageID;
+            resolve();
+          },
+          event.messageID
+        );
+      });
+
       for (let i = 0; i < 3; i++) {
         try {
           const filePath = path.join(__dirname, "cache", `rv_${Date.now()}.mp4`);
@@ -108,9 +140,17 @@ module.exports = {
             throw new Error("Empty video");
           }
 
+          // Delete the "wait" text before sending the video
+          if (waitMsgID) {
+            try { await api.unsendMessage(waitMsgID); } catch (e) {}
+          }
+
+          // Text sent WITH the video
+          const caption = CAPTION_TEXT;
+
           return api.sendMessage(
             {
-              body: "🎬 Here's your video!",
+              body: caption,
               attachment: fs.createReadStream(filePath)
             },
             event.threadID,
