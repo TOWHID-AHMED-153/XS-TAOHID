@@ -1,44 +1,38 @@
-const axios = require("axios");
-const fs = require("fs-extra");
-const path = require("path");
-
-module.exports = {
-  config: {
-    name: "info",
-    version: "1.0",
-    author: "Touhid",
-    role: 0,
-    category: "info",
-    shortDescription: "Bot info with pic",
-    cooldowns: 5,
-    hasPrefix: false
-  },
-
-  onStart: async function() {},
-
-  run: async function({ api, event, message }) {
-    const imgUrl = "https://i.imgur.com/yAInnf2.jpeg"; // <-- EKHANE TOR PIC ER LINK BOSHA
-    const imgPath = path.join(__dirname, "cache", "info.jpg");
-
-    try {
-      // Pic download
-      const res = await axios.get(imgUrl, { responseType: "arraybuffer" });
-      await fs.ensureDir(path.join(__dirname, "cache"));
-      await fs.writeFile(imgPath, Buffer.from(res.data));
-
-      // Message pathano
-      return message.reply({
-        body: `👶 𝗕𝗢𝗧 𝗜𝗡𝗙𝗢 👶\n\n` +
-              `**Name:** XS-TAOHID BOT\n` +
-              `**Version:** 16.0\n` +
-              `**Author:** Touhid\n` +
-              `**Status:** Online 🟢\n\n` +
-              `Amake `baby` bole dak dis 🥰`,
-        attachment: fs.createReadStream(imgPath)
-      });
-
-    } catch (e) {
-      return message.reply("Sona pic load hoyni 😔 Sudhu info dilam.");
-    }
-  }
+module.exports.config = {
+  name: "info",
+  version: "3.0",
+  author: "Touhid",
+  countDown: 0,
+  role: 0,
+  shortDescription: "Bot info + auto reply",
+  category: "info",
+  guide: "info or baby",
+  hasPrefix: false
 };
+
+module.exports.onStart = async function({}) {}
+
+// No Prefix e auto reply er jonno
+module.exports.handleEvent = async function({ api, event, message }) {
+    const body = event.body ? event.body.toLowerCase().trim() : "";
+    if(event.senderID == api.getCurrentUserID()) return;
+    
+    if(body == "info" || body == "baby" || body == "bot"){
+      const imgUrl = "https://i.imgur.com/yAInnf2.jpeg"; // <-- TOR PIC ER LINK
+      const msg = `👶 𝗕𝗢𝗧 𝗜𝗡𝗙𝗢 𝗩3.0 👶\n\n` +
+                  `**Name:** XS-TAOHID BOT\n` +
+                  `**Version:** 3.0\n` +
+                  `**Author:** Touhid\n` +
+                  `**Status:** Online 🟢\n\n` +
+                  `Ki korba sona? 🥰`;
+      
+      try {
+        const img = await global.utils.getStreamFromURL(imgUrl);
+        return message.reply({ body: msg, attachment: img });
+      } catch {
+        return message.reply(msg);
+      }
+    }
+}
+
+module.exports.run = async function({}) {}
